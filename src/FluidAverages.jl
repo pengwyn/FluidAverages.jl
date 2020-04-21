@@ -431,9 +431,16 @@ end
     ApproachLJ(β_in, ρ, N, Nfinal=N)
 
 Calculate a `PercusYevick` iteration solution to the Lennard-Jones problem at
-`β_in` and `ρ`. If there are convergence issues, the function will move to a
+`β_in`=1/kT and `ρ`. If there are convergence issues, the function will move to a
 higher temperature to find a solution which does converge, and then uses that
 solution as an initial guess for the desired temperature.
+    
+`N` is the number of grid points passed to `PercusYevick`. The size of the grid
+can be controlled via an optional keyword `b` as described in `PercusYevick`.
+`b` defaults to 10 as set in `LJCalc`.
+
+As an additional step, if `Nfinal`≠`N` then after convergence, the code will
+perform one extra iteration to increase the grid size from `N` to `Nfinal`.
 """
 function ApproachLJ(β_in, ρ, N, Nfinal=N ;
                     safe_β=1/1.5,
