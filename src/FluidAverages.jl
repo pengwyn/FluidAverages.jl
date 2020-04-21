@@ -5,11 +5,12 @@ export ConvergeAlphaDash,
     LJCalc,
     ApproachLJ
 
-using Dierckx, QuadGK
+using Distributed
 using ProgressMeter
 
-using Distributed
 using NumericalIntegration: integrate, cumul_integrate
+using Dierckx: Spline1D
+using QuadGK
 
 """
     ConvergeAlphaDash(alpha_R, alpha, gs, g, dens ; imax=10, calc_R=alpha_R, tol=1e-6, kwds...)
@@ -27,7 +28,7 @@ iterations is less than `tol`.
 `kwds` are passed through to the `CalcAlphaDash` function, called at each
 iteration. It is highly recommended to set `s_max` for this to a reasonably
 large value.
-k"""
+"""
 function ConvergeAlphaDash(alpha_R, alpha, gs, g, dens ; imax=10, calc_R=alpha_R, tol=1e-6, kwds...)
     fL = 1 / (1 + (8/3)*pi*dens*alpha[end])
 
@@ -158,7 +159,7 @@ end
 
 """This is Bob's logarithmic mesh"""
 function LogMesh(N::Int, Z::Int, rho::Float64=-8.0, h::Float64=0.0625)
-    logmesh = exp.(rho + (0:(N-1)) * h) / Z
+    logmesh = @. exp(rho + (0:(N-1)) * h) / Z
 end
 
 """Extract the dipole polarisation potential from one of Bob's large datafiles. I think this is r⁴*Vₚ."""
@@ -208,6 +209,7 @@ function ReadAlphaFromBobInput(filename)
 end
 
 using Polynomials
+
 """
     SurroundingAverage(gs,g,r,func,dens ; asymp_pot=false)
 
@@ -220,6 +222,7 @@ This function is mostly useful for U₂(r) averaging. For that reason, there is
 also a kwd `asymp_pot` which will fit the function to a long-range 1/r⁴ form and
 use an analytical result for the integrals past the outer value of `gs`.
 """
+
 function SurroundingAverage(gs,g,r,func,dens ; asymp_pot=false)
 
     func_interp = Spline1D(r,func)
@@ -268,8 +271,6 @@ end
 
 
 
-
-# Trying PY approx
 
 """
     PercusYevick(N, b, pot, β, ρ ; kwds...)
