@@ -1,7 +1,7 @@
 name = "FluidAverages"
 uuid = "0261592a-effe-4874-b94c-0d4c5519cc3b"
 authors = ["Daniel Cocks <daniel.cocks@gmail.com>"]
-version = "0.1.1"
+version = "0.1.2-dev"
 
 [deps]
 Dierckx = "39dd38d3-220a-591b-8e3c-4c3a8c710a94"

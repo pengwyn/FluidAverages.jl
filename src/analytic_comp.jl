@@ -1,19 +1,18 @@
-
 import PercusYevickSSF
-"""A comparison with my other analytical hard-sphere PY result. Only works if that module is available."""
-function CompareWithAnalytic(a, ϕ, β=1. ; potval=1e0, kwds...)
-    # Note: β only enters with the potential, which is being taken to infinity anyway.
 
-    r,ρ = PercusYevickSSF.HardsphereRadiusDensity(a, ϕ, factor_4pi=false)
+"""
+    CompareWithAnalytic(a, ϕ ; kwds...)
 
-    @show r ρ
+A comparison with my other analytical hard-sphere PY result. Only works if that module is available. `a` is the cross section and `phi` the filling fraction. All other `kwds` are passed to `PYHardSphereStepped`.
+"""
+function CompareWithAnalytic(a, ϕ ; kwds...)
+    radius,ρ = PercusYevickSSF.HardsphereRadiusDensity(a, ϕ, factor_4pi=false)
 
-    pot = R -> (R < 2*r ? potval : 0.)
+    R,g = PYHardSphereStepped(a, ϕ ; ignore_kb_int=false, kwds...)
+    # A finer grid
+    R,g = PYHardSphere(a, ϕ ; init=g, N=1000, α=0.01, potval=30.0, kwds...)
 
-    R = LinRange(0,5,1001)[2:end]
-    g_anly = PercusYevickSSF.PairCorrelator(R, r, ρ)
+    g_anly = PercusYevickSSF.PairCorrelator(R, radius, ρ)
 
-    R_num,g_num,y_num = PercusYevick(201, 5.0, pot, β, ρ ; kwds...)
-
-    return R,g_anly,R_num,g_num,y_num
+    return R,g,g_anly
 end
