@@ -299,17 +299,22 @@ function PercusYevick(N, b, pot, β, ρ ;
                       suppress_r=0.1,
                       renormalise=false,
                       init=:auto,
-                      init_N=N,
                       ignore_kb_int=true
                       )
     local R = nothing
 
-    if init_N == N || init == :auto
+    if init == :auto
         y = init
     else
-        R_old, = PYR(init_N, b)
-        R,= PYR(N,b)
-        y = Spline1D(R_old, init).(R)
+        # PYR gives one more point than N... maybe this should be fixed?
+        init_N = length(init) - 1
+        if init_N == N
+            y = init
+        else
+            R_old, = PYR(init_N, b)
+            R,= PYR(N,b)
+            y = Spline1D(R_old, init).(R)
+        end
     end
 
     E(Rin) = (Rin == 0 ? 0. : exp(-β*pot(Rin)))
