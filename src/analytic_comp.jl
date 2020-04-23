@@ -10,7 +10,7 @@ function CompareWithAnalytic(a, ϕ ; kwds...)
 
     R,g = PYHardSphereStepped(a, ϕ ; ignore_kb_int=false, kwds...)
     # A finer grid
-    R,g = PYHardSphere(a, ϕ ; init=g, N=1000, α=0.01, potval=30.0, kwds...)
+    # R,g = PYHardSphere(a, ϕ ; init=g, N=1000, α=0.01, potval=30.0, kwds...)
 
     g_anly = PercusYevickSSF.PairCorrelator(R, radius, ρ)
 
