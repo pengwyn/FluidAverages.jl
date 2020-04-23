@@ -294,7 +294,7 @@ points and an outer limit of r=`b`.
 """
 function PercusYevick(N, b, pot, β, ρ ;
                       tol=1e-6,
-                      imax=10^6,
+                      imax=10^4,
                       α=0.1,
                       suppress_r=0.1,
                       renormalise=false,
@@ -324,6 +324,8 @@ function PercusYevick(N, b, pot, β, ρ ;
 
     try
         for i in 1:imax
+            i == imax && error("Couldn't converge")
+            
             R,new = PercusYevickWorker(N, b, y, pot, β, ρ)
 
             any(isnan,new) && error("Values went NaN after $i iterations!")
@@ -344,6 +346,7 @@ function PercusYevick(N, b, pot, β, ρ ;
                 new_g = gfunc(new)
                 diff = integrate(R, abs.(old_g - new_g))
 
+                # update!(prog, diff, showvalues=[[:iteration, i]])
                 update!(prog, diff)
 
                 abs(diff) < tol && break
