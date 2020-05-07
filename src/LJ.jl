@@ -72,7 +72,7 @@ function ApproachLJ(β_in, ρ, N, Nfinal=N ;
     end
 
     if Nfinal != N || R == nothing
-        R,g,y = LJCalc(β_in,ρ, N=Nfinal ; ignore_kb_int=false, init=y, init_N=N, kwds...)
+        R,g,y = LJCalc(β_in,ρ, N=Nfinal ; ignore_kb_int=false, init=y, kwds...)
     end
         
 

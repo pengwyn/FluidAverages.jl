@@ -289,7 +289,6 @@ points and an outer limit of r=`b`.
 - `suppress_r=0.1`: force y(r < suppress_r)=1
 - `renormalise`: don't use this. Tries to conserve number of particles.
 - `init`: vector used for y(r) on first iteration. Set to `:auto` for a vector of ones.
-- `init_N`: if `init` is on a different grid, set this and `init` will be interpolated onto `N`.
 - `ignore_kb_int`: exits the iterations gracefully if a KeyboardInterrupt occurs.
 """
 function PercusYevick(N, b, pot, β, ρ ;
