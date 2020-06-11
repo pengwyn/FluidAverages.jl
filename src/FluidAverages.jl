@@ -422,4 +422,25 @@ function __init__()
     @require PercusYevickSSF="049a20d6-fd7b-48fa-9e53-068da91f9fc4" include("analytic_comp.jl")
 end
 
+
+
+using NumericalIntegration
+function ConvertRDFToSSF(R, g ; numk=100, ρ0, min_k_mult=1)
+
+    L = R[end] * 2
+
+    min_k = 2π / L * min_k_mult
+    kvals = min_k * (1:numk)
+    # Possible asymptotic form here
+
+    grem = g .- 1
+
+    S = map(kvals) do k
+        1 + 4π * ρ0 / k * integrate(R, @. R * sin(k*R) * grem)
+    end
+
+    return kvals,S
+end
+
+
 end # module
