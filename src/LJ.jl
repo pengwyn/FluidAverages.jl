@@ -1,4 +1,5 @@
 
+LJpot(R) = 4*(1/R^12 - 1/R^6)
 
 """
     LJCalc(β,ρ ; maxpot_val=Inf, maxR=Inf, kwds...)
@@ -16,9 +17,8 @@ function LJCalc(β,ρ, ;
                 maxpot_val=Inf,
                 maxR = Inf,
                 kwds...)
-    pot = R -> 4*(1/R^12 - 1/R^6)
 
-    maxpot = R -> R > maxR ? 0. : min(pot(R), maxpot_val / β)
+    maxpot = R -> R > maxR ? 0. : min(LJpot(R), maxpot_val / β)
 
     R,g,y = PercusYevick(N, b, maxpot, β, ρ ; α=α, kwds...)
 
