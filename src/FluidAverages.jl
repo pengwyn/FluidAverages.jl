@@ -30,11 +30,12 @@ iteration. It is highly recommended to set `s_max` for this to a reasonably
 large value.
 """
 function ConvergeAlphaDash(alpha_R, alpha, gs, g, dens ; imax=10, calc_R=alpha_R, tol=1e-6, kwds...)
+    # For units, we need to have V = -q^2/4piϵ₀ * α/2r^4
     fL = 1 / (1 + (8/3)*pi*dens*alpha[end])
 
     alpha_interp = Spline1D(alpha_R, alpha, k=1, bc="nearest")
 
-    cur = alpha_interp(calc_R)*fL
+    cur = alpha_interp.(calc_R)*fL
 
     for i in 1:imax
         new = CalcAlphaDash(alpha_R, alpha, gs, g, dens, calc_R=calc_R, alpha_prev=cur ; kwds...)
@@ -49,15 +50,17 @@ function ConvergeAlphaDash(alpha_R, alpha, gs, g, dens ; imax=10, calc_R=alpha_R
     return cur
 end
 
-function CalcAlphaDash(alpha_R, alpha, gs, g, dens ; s_max=gs[end], calc_R=alpha_R, alpha_prev=:auto, show_figures=TypeFalse(), method=:inv_quadgk)
+function CalcAlphaDash(alpha_R, alpha, gs, g, dens ; s_max=gs[end], calc_R=alpha_R, alpha_prev=:auto, show_figures=false, method=:inv_quadgk)
     @assert method ∈ [:quadgk, :inv_quadgk, :inv_trapz]
     
     if gs[1] == 0.
+        gs = copy(gs)
+        g = copy(g)
         popfirst!(gs)
         popfirst!(g)
     end
 
-    if show_figures isa Real
+    if show_figures !== false
         @assert show_figures ∈ calc_R
     end
 
@@ -81,7 +84,7 @@ function CalcAlphaDash(alpha_R, alpha, gs, g, dens ; s_max=gs[end], calc_R=alpha
         Rsqr = R^2
         ssqr = s^2
 
-        tmin = 0.
+        tmin = 0.0
         tintmin = max(1e-8, tmin, abs(R - s))
         tintmax = R + s
 
@@ -392,6 +395,8 @@ function PercusYevickWorker(N, b, y, pot, β, ρ)
             tmin_ind = abs(sind-Rind) + 1
             tmax_ind = (sind-1+Rind-1) + 1
             out *= (x[tmax_ind]*E[tmax_ind] + sign(sind-Rind)*x[tmin_ind]*E[tmin_ind] - 2*Rlist[sind])
+            # TODO: Why is this not using the inbounds??
+            # @inbounds out *= (x[tmax_ind]*E[tmax_ind] + sign(sind-Rind)*x[tmin_ind]*E[tmin_ind] - 2*Rlist[sind])
         end
 
         out = integrate(Rlist, integrand)
