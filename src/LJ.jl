@@ -44,8 +44,9 @@ function ApproachLJ(β_in, ρ, N, Nfinal=N ;
                     safe_β=1/1.5,
                     β_step=β_in - safe_β,
                     β_step_adjust=true,
+                    init=:auto,
                     kwds...)
-    y = :auto
+    y = init
     R = nothing
     local g
     # for β in [(safe_β:β_step:β_in) ; β_in]
@@ -62,7 +63,7 @@ function ApproachLJ(β_in, ρ, N, Nfinal=N ;
             β_step /= 2.5
             if β_step < 0.001
                 @error "β_step got too small. Maybe this is in the coexistence region?" β_step last_β β 1/β ρ
-                error("Break")
+                error("β_step got too small. Maybe this is in the coexistence region?")
             end
             @info "Adjusting β_step to be smaller" β_step
             continue
@@ -72,9 +73,14 @@ function ApproachLJ(β_in, ρ, N, Nfinal=N ;
     end
 
     if Nfinal != N || R == nothing
-        R,g,y = LJCalc(β_in,ρ, N=Nfinal ; ignore_kb_int=false, init=y, kwds...)
-    end
+        if Nfinal isa Int
+            Nfinal = [Nfinal]
+        end
         
+        for N in Nfinal
+            R,g,y = LJCalc(β_in,ρ, N=N ; ignore_kb_int=false, init=y, kwds...)
+        end
+    end
 
     return R,g,y
 end

@@ -301,7 +301,8 @@ function PercusYevick(N, b, pot, β, ρ ;
                       suppress_r=0.1,
                       renormalise=false,
                       init=:auto,
-                      ignore_kb_int=true
+                      ignore_kb_int=true,
+                      showprogress=true
                       )
     local R = nothing
 
@@ -322,7 +323,9 @@ function PercusYevick(N, b, pot, β, ρ ;
     E(Rin) = (Rin == 0 ? 0. : exp(-β*pot(Rin)))
     gfunc(y) = @. E(R) * y
 
-    prog = ProgressThresh(tol)
+    if showprogress
+        prog = ProgressThresh(tol)
+    end
 
     try
         for i in 1:imax
@@ -348,8 +351,10 @@ function PercusYevick(N, b, pot, β, ρ ;
                 new_g = gfunc(new)
                 diff = integrate(R, abs.(old_g - new_g))
 
-                # update!(prog, diff, showvalues=[[:iteration, i]])
-                update!(prog, diff)
+                if showprogress
+                    # update!(prog, diff, showvalues=[[:iteration, i]])
+                    update!(prog, diff)
+                end
 
                 abs(diff) < tol && break
 
