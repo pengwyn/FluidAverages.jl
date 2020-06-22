@@ -96,16 +96,16 @@ using ForwardDiff: derivative
 LJ_deriv(R) = derivative(LJpot, R)
 
 function LJ_Pressure(r,g,ρ,T)
-    val = 4π * integrate(R, @. g * LJ_deriv(R) * R^3)
+    val = 4π * integrate(r, @. g * LJ_deriv(r) * r^3)
     P = ρ*T - 1/6*ρ^2*val
 end
 function LJ_EnergyDens(r,g,ρ,T)
-    val = 4π * integrate(R, @. g * LJpot(R) * R^2)
+    val = 4π * integrate(r, @. g * LJpot(r) * r^2)
     UonN = 3/2*ρ*T - 1/2*ρ^2*val
 end
 function LJ_Compressibility(r,g,ρ,T)
     # This is really S(K=0)
-    val = 4π * integrate(R, @. (g-1) * R^2)
+    val = 4π * integrate(r, @. (g-1) * r^2)
     kTdρdP = 1 + ρ*val
-    χT = kTdρdP / ρ / T
+    χT = kTdρdP / (ρ*T)
 end
