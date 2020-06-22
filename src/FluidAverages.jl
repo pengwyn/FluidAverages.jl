@@ -331,7 +331,7 @@ function PercusYevick(N, b, pot, β, ρ ;
         for i in 1:imax
             i == imax && error("Couldn't converge")
             
-            R,new = PercusYevickWorker(N, b, y, pot, β, ρ)
+            R,new = PercusYevickWorker3(N, b, y, pot, β, ρ)
 
             any(isnan,new) && error("Values went NaN after $i iterations!")
 
@@ -417,6 +417,129 @@ function PercusYevickWorker(N, b, y, pot, β, ρ)
 
     Rlist,y
 end
+
+using OffsetArrays
+function PercusYevickWorker2(N, b, y, pot, β, ρ)
+    R, = PYR(N,b)
+
+    all = 0:length(R)-1
+    R = OffsetArray(R, all)
+
+    intwrap(x,y) = (length(x) <= 1) ? 0. : integrate(R[x],y)
+    function doint(v,start,stop)
+        if stop >= start
+            inds = start:stop
+        else
+            inds = stop:-1:start
+        end
+        intwrap(inds, v[inds])
+    end
+
+    if y == :auto
+        y = ones(all)
+    end
+
+    Y = y .* R
+
+    E = @. exp(-β*pot(R))
+    E[begin] = 0.
+
+    C = @. (E - 1)*Y
+    H = @. E*Y - R
+
+    Hcum = cumul_integrate(R,H)
+    Hcum = OffsetArray(Hcum, all)
+
+    function W(s,t)
+        s < t && return -W(t,s)
+
+        intwrap(0:s, map(0:s) do v
+                low = abs(s - t - v)
+                high = s - abs(t - v)
+                doint(H, low, high)
+                end)
+    end
+
+    Y = map(eachindex(R)) do r
+        val = R[r]
+        val += 2π*ρ * intwrap(0:r, map(0:r) do s
+                              intwrap(0:s, map(0:s) do t
+                                      H[t]*H[s-t]
+                                      end)
+                              end)
+        val += 4π*ρ * intwrap(all, map(all) do s
+                              C[s] * (Hcum[s] - Hcum[abs(r-s)])
+                              end)
+        val += 4π^2*ρ^2 * intwrap(all, map(all) do s
+                                  C[s] * intwrap(0:r, map(0:r) do t
+                                                 W(s,t)
+                                                 end)
+                                  end)
+    end
+
+    y = Y./R
+    y[begin] = 1.
+
+    R,y
+end
+
+function PercusYevickWorker3(N, b, y, pot, β, ρ)
+    R, = PYR(N,b)
+
+    R = OffsetArray(R, 0:length(R)-1)
+    all = axes(R,1)
+
+    if y == :auto
+        y = ones(all)
+    else
+        y = OffsetArray(y,all)
+    end
+
+    intwrap(x,y) = (length(x) <= 1) ? 0. : integrate(x,y)
+
+    # Y = y .* R
+
+    E = @. exp(-β*pot(R))
+    E[begin] = 0.
+
+    inner_cum = cumul_integrate(R, @. R * (1 - E*y))
+    # inner_cum = OffsetArray([0;inner_cum], 0:length(R))
+    temp = @. R * (1 - E*y)
+    # println()
+    # @show N inner_cum[end-3:end] temp[end-3:end] R[end-3:end]
+
+    newy = map(eachindex(R)) do r
+        val = 1.
+        val += 2π*ρ/R[r] * integrate(R, map(all) do s
+                                     low = abs(r-s)
+                                     high = min(r+s,lastindex(R))
+                                     # inds = low:high
+                                     # temp = intwrap(R[inds], map(inds) do t
+                                     #                                R[t]*(1 - E[t]*y[t])
+                                     #                                end)
+                                     # (1 - E[s])*R[s]*y[s] * intwrap(R[inds], map(inds) do t
+                                     #                                R[t]*(1 - E[t]*y[t])
+                                     #                                end)
+                                     (1 - E[s])*R[s]*y[s] * (inner_cum[high] - inner_cum[low])
+                                     end)
+    end
+    newy[begin] = 1.
+
+    parent(R),parent(newy)
+end
+
+using AutoNamedTuples
+function DoubleCheck(r,g,pot,β)
+    E = @. exp(β*pot(r))
+    E[1] = 0.
+    
+    c = @. (1 - E)*g
+    c[g .== 0] .= 0
+
+    return @AutoNT (E,c)
+end
+
+
 
 include("LJ.jl")
 include("hardsphere.jl")
