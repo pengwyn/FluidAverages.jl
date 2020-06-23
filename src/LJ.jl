@@ -101,7 +101,7 @@ function LJ_Pressure(r,g,ρ,T)
 end
 function LJ_EnergyDens(r,g,ρ,T)
     val = 4π * integrate(r, @. g * LJpot(r) * r^2)
-    UonN = 3/2*ρ*T - 1/2*ρ^2*val
+    UonN = 3/2*T + 1/2*ρ*val
 end
 function LJ_Compressibility(r,g,ρ,T)
     # This is really S(K=0)
