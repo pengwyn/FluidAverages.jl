@@ -441,8 +441,10 @@ function PercusYevickWorker2(N, b, y, pot, β, ρ)
 
     Y = y .* R
 
+    begin_ind = 0
+    
     E = @. exp(-β*pot(R))
-    E[begin] = 0.
+    E[begin_ind] = 0.
 
     C = @. (E - 1)*Y
     H = @. E*Y - R
@@ -478,7 +480,7 @@ function PercusYevickWorker2(N, b, y, pot, β, ρ)
     end
 
     y = Y./R
-    y[begin] = 1.
+    y[begin_ind] = 1.
 
     R,y
 end
@@ -499,8 +501,9 @@ function PercusYevickWorker3(N, b, y, pot, β, ρ)
 
     # Y = y .* R
 
+    begin_ind = 0
     E = @. exp(-β*pot(R))
-    E[begin] = 0.
+    E[begin_ind] = 0.
 
     inner_cum = cumul_integrate(R, @. R * (1 - E*y))
     # inner_cum = OffsetArray([0;inner_cum], 0:length(R))
@@ -523,7 +526,7 @@ function PercusYevickWorker3(N, b, y, pot, β, ρ)
                                      (1 - E[s])*R[s]*y[s] * (inner_cum[high] - inner_cum[low])
                                      end)
     end
-    newy[begin] = 1.
+    newy[begin_ind] = 1.
 
     parent(R),parent(newy)
 end
