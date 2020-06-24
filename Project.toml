@@ -1,7 +1,7 @@
 name = "FluidAverages"
 uuid = "0261592a-effe-4874-b94c-0d4c5519cc3b"
 authors = ["Daniel Cocks <daniel.cocks@gmail.com>"]
-version = "0.1.4-dev"
+version = "0.1.4"
 
 [deps]
 AutoNamedTuples = "2d5c8b5f-d39b-411d-9ff0-b84399723de4"
