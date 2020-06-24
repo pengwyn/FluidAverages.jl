@@ -528,18 +528,6 @@ function PercusYevickWorker3(N, b, y, pot, β, ρ)
     parent(R),parent(newy)
 end
 
-using AutoNamedTuples
-function DoubleCheck(r,g,pot,β)
-    E = @. exp(β*pot(r))
-    E[1] = 0.
-    
-    c = @. (1 - E)*g
-    c[g .== 0] .= 0
-
-    return @AutoNT (E,c)
-end
-
-
 
 include("LJ.jl")
 include("hardsphere.jl")

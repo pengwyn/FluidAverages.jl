@@ -1,10 +1,9 @@
 name = "FluidAverages"
 uuid = "0261592a-effe-4874-b94c-0d4c5519cc3b"
 authors = ["Daniel Cocks <daniel.cocks@gmail.com>"]
-version = "0.1.4"
+version = "0.1.5-dev"
 
 [deps]
-AutoNamedTuples = "2d5c8b5f-d39b-411d-9ff0-b84399723de4"
 Dierckx = "39dd38d3-220a-591b-8e3c-4c3a8c710a94"
 Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
