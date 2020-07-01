@@ -503,7 +503,7 @@ function PercusYevickWorker3(N, b, y, pot, β, ρ)
     E[begin] = 0.
 
     inner_cum = cumul_integrate(R, @. R * (1 - E*y))
-    # inner_cum = OffsetArray([0;inner_cum], 0:length(R))
+    inner_cum = OffsetArray([0;parent(inner_cum)], 0:length(R))
     temp = @. R * (1 - E*y)
     # println()
     # @show N inner_cum[end-3:end] temp[end-3:end] R[end-3:end]
